@@ -1,5 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import lendLengthCalc from "../utils/lendLengthCalc.js";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import Rating from "@mui/material/Rating";
 
 export default function BookCard({
   book,
@@ -15,6 +27,7 @@ export default function BookCard({
   const [lentTo, setLentTo] = useState("");
   const [lendError, setLendError] = useState("");
   const inputRef = useRef(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const lentPercent = book.isLent ? lendLengthCalc(book.lentDate) / 100 : 0;
 
@@ -51,17 +64,30 @@ export default function BookCard({
       data-status={book.status}
       style={{ boxShadow: `0 0 20px 0 rgba(255, 0, 0, ${lentPercent})` }}
     >
-      <button
-        className="delete-btn"
-        onClick={() => {
-          if (confirm("Are you sure you want to delete this book?")) {
-            onDelete(book.id);
-          }
-        }}
-      >
-        x
-      </button>
-      <button onClick={() => setBookFormState(book)}>Edit</button>
+      <IconButton aria-label="delete" onClick={() => setDeleteDialogOpen(true)}>
+        <DeleteIcon />
+      </IconButton>
+      <Dialog open={deleteDialogOpen}>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this book?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              onDelete(book.id);
+              setDeleteDialogOpen(false);
+            }}
+          >
+            Delete
+          </Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+      <Button variant="outlined" onClick={() => setBookFormState(book)}>
+        Edit
+      </Button>
       {book.coverUrl && !imageError ? (
         <img
           src={book.coverUrl}
@@ -69,7 +95,7 @@ export default function BookCard({
           onError={() => setImageError(true)}
         />
       ) : (
-        <div>{book.title}</div>
+        <div className="cover-placeholder">{book.title}</div>
       )}
       <h3 dir="auto">{book.title}</h3>
       {book.isLent ? (
@@ -80,45 +106,43 @@ export default function BookCard({
       ) : (
         <p dir="auto">{book.author}</p>
       )}
-      <span>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <span
-            className="star-rating"
-            key={star}
-            onClick={() => onRatingChange(book.id, star)}
-          >
-            {star <= book.rating ? "★" : "☆"}
-          </span>
-        ))}
-      </span>
-      <select
+      <Rating
+        value={book.rating}
+        onChange={(e, newValue) => onRatingChange(book.id, newValue)}
+      />
+      <Select
         className="status-select"
         value={book.status || "null"}
         onChange={handleStatusChange}
       >
-        <option value="null">No Status</option>
-        <option value="tbr">TBR</option>
-        <option value="reading">Currently Reading</option>
-        <option value="read">Read</option>
-        <option value="dnf">DNF</option>
-      </select>
+        <MenuItem value="null">No Status</MenuItem>
+        <MenuItem value="tbr">TBR</MenuItem>
+        <MenuItem value="reading">Currently Reading</MenuItem>
+        <MenuItem value="read">Read</MenuItem>
+        <MenuItem value="dnf">DNF</MenuItem>
+      </Select>
       {!book.isLent && !showLendForm && (
-        <button onClick={() => setShowLendForm(true)}>Lend Book</button>
+        <Button variant="contained" onClick={() => setShowLendForm(true)}>
+          Lend Book
+        </Button>
       )}
       {!book.isLent && showLendForm && (
-        <form>
-          <label>Lend to:</label>
-          <input
+        <form onSubmit={handleSubmitLend}>
+          <TextField
+            label="Lend to:"
+            variant="filled"
             type="text"
-            ref={inputRef}
+            inputRef={inputRef}
             value={lentTo}
             onChange={(e) => setLentTo(e.target.value)}
             placeholder="Who is borrowing the book?"
           />
-          <button type="submit" onClick={handleSubmitLend}>
-            Lend Book
-          </button>
-          <button
+          {lendError && <Alert severity="warning">{lendError}</Alert>}
+          <Button variant="contained" color="success" type="submit">
+            Save
+          </Button>
+          <Button
+            variant="contained"
             onClick={() => {
               setShowLendForm(false);
               setLentTo("");
@@ -126,12 +150,17 @@ export default function BookCard({
             }}
           >
             Cancel
-          </button>
-          {lendError && <p className="error-message">{lendError}</p>}
+          </Button>
         </form>
       )}
       {book.isLent && (
-        <button onClick={() => onReturnBook(book.id)}>Return Book</button>
+        <Button
+          variant="contained"
+          color="info"
+          onClick={() => onReturnBook(book.id)}
+        >
+          Return Book
+        </Button>
       )}
     </div>
   );

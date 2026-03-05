@@ -1,3 +1,6 @@
+import Button from "@mui/material/Button";
+import Switch from "@mui/material/Switch";
+
 export default function FilterBar({
   activeFilter,
   handleFilterChange,
@@ -6,45 +9,66 @@ export default function FilterBar({
 }) {
   return (
     <>
-      <button
-        className={activeFilter === "all" ? "active-filter" : ""}
+      <Button
+        variant={activeFilter === "all" ? "contained" : "outlined"}
+        color="primary"
         onClick={() => handleFilterChange("all")}
       >
         All
-      </button>
-      <button
-        className={activeFilter === "untagged" ? "active-filter" : ""}
+      </Button>
+      <Button
+        variant={activeFilter === "untagged" ? "contained" : "outlined"}
+        color="secondary"
         onClick={() => handleFilterChange("untagged")}
       >
         Untagged
-      </button>
-      <button
-        className={activeFilter === "tbr" ? "active-filter" : ""}
+      </Button>
+      <Button
+        variant={activeFilter === "tbr" ? "contained" : "outlined"}
+        sx={
+          activeFilter === "tbr"
+            ? { backgroundColor: "#fff3cd", color: "#6b5104" }
+            : { color: "#6b5104", borderColor: "#6b5104" }
+        }
         onClick={() => handleFilterChange("tbr")}
       >
         TBR
-      </button>
-      <button
-        className={activeFilter === "reading" ? "active-filter" : ""}
+      </Button>
+      <Button
+        variant={activeFilter === "reading" ? "contained" : "outlined"}
+        sx={
+          activeFilter === "reading"
+            ? { backgroundColor: "#cfe2ff", color: "#084298" }
+            : { color: "#084298", borderColor: "#084298" }
+        }
         onClick={() => handleFilterChange("reading")}
       >
         Currently Reading
-      </button>
-      <button
-        className={activeFilter === "read" ? "active-filter" : ""}
+      </Button>
+      <Button
+        variant={activeFilter === "read" ? "contained" : "outlined"}
+        sx={
+          activeFilter === "read"
+            ? { backgroundColor: "#d1e7dd", color: "#0f5132" }
+            : { color: "#0f5132", borderColor: "#0f5132" }
+        }
         onClick={() => handleFilterChange("read")}
       >
         Read
-      </button>
-      <button
-        className={activeFilter === "dnf" ? "active-filter" : ""}
+      </Button>
+      <Button
+        variant={activeFilter === "dnf" ? "contained" : "outlined"}
+        sx={
+          activeFilter === "dnf"
+            ? { backgroundColor: "#f8d7da", color: "#842029" }
+            : { color: "#842029", borderColor: "#842029" }
+        }
         onClick={() => handleFilterChange("dnf")}
       >
         DNF
-      </button>
-      <label> Hide Lent Books: </label>
-      <input
-        type="checkbox"
+      </Button>
+      <label> Hide Lent Books</label>
+      <Switch
         onChange={() => setLentFilter(lentFilter ? false : true)}
         checked={lentFilter}
       />

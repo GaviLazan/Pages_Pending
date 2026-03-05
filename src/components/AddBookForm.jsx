@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { fetchBookByISBN } from "../api/openLibrary";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
 
 export default function AddBookForm({ onAddBook }) {
   const [isbn, setIsbn] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const inputRef = useRef(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -23,18 +27,26 @@ export default function AddBookForm({ onAddBook }) {
     }
   };
 
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
+
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        placeholder="Enter ISBN"
+      <TextField
+        label="Enter ISBN"
+        variant="filled"
         value={isbn}
+        inputRef={inputRef}
         onChange={(e) => {
           setIsbn(e.target.value);
           setErrorMessage("");
         }}
       />
-      <button type="submit">Add Book</button>
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      <Button variant="contained" color="success" type="submit">
+        Add Book
+      </Button>
+      {errorMessage && <Alert severity="warning">{errorMessage}</Alert>}
     </form>
   );
 }

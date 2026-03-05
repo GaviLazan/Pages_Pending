@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
 
 export default function BookFormModal({
   onAddBook,
@@ -12,6 +15,7 @@ export default function BookFormModal({
   const [errorMessage, setErrorMessage] = useState("");
   const [lentTo, setLentTo] = useState(bookFormState?.lentTo || "");
   const [lentDate, setLentDate] = useState(bookFormState?.lentDate || "");
+  const inputRef = useRef(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -59,42 +63,54 @@ export default function BookFormModal({
     }
   };
 
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
+
   return (
     <form onSubmit={handleSubmit}>
-      <label>Title:</label>
-      <input
-        placeholder="Enter Title"
+      <TextField
+        label="Title"
+        variant="filled"
         value={title}
+        ref={inputRef}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <label>Author:</label>
-      <input
-        placeholder="Enter Author Name"
+      <TextField
+        variant="filled"
+        label="Author Name"
         value={author}
         onChange={(e) => setAuthor(e.target.value)}
       />
-      <label>Cover URL:</label>
-      <input
-        placeholder="Enter URL"
+      <TextField
+        variant="filled"
+        label="Cover URL"
         value={coverUrl}
         onChange={(e) => setCoverUrl(e.target.value)}
       />
       {bookFormState?.isLent === true && (
         <div>
-          <label>Lent to:</label>
-          <input value={lentTo} onChange={(e) => setLentTo(e.target.value)} />
-          <label>Lent on:</label>
-          <input
-            value={lentDate}
+          <TextField
+            variant="filled"
+            label="Lent to:"
+            defaultValue={lentTo}
+            onChange={(e) => setLentTo(e.target.value)}
+          />
+          <TextField
+            variant="filled"
+            label="Lent on:"
+            defaultValue={lentDate}
             onChange={(e) => setLentDate(e.target.value)}
           />
         </div>
       )}
-      <button type="submit">
+      <Button variant="contained" color="success" type="submit">
         {bookFormState !== "add" ? "Save Changes" : "Add Book"}
-      </button>
-      <button onClick={()=>setBookFormState(null)}>Cancel</button>
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      </Button>
+      <Button variant="contained" onClick={() => setBookFormState(null)}>
+        Cancel
+      </Button>
+      {errorMessage && <Alert severity="warning">{errorMessage}</Alert>}
     </form>
   );
 }

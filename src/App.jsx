@@ -8,6 +8,8 @@ import FilterBar from "./components/FilterBar";
 import SortBar from "./components/SortBar";
 import LentStatusPanel from "./components/LentStatusPanel";
 import LibraryStatsBar from "./components/LibraryStatsBar";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 
 export default function App() {
   const [books, setBooks] = useState([]);
@@ -164,7 +166,9 @@ export default function App() {
         bookFormState={bookFormState}
         setBookFormState={setBookFormState}
       />
-      <button onClick={() => setBookFormState("add")}>Add Book Manually</button>
+      <Button variant="contained" onClick={() => setBookFormState("add")}>
+        Add Book Manually
+      </Button>
       {bookFormState && (
         <BookFormModal
           onAddBook={handleAddBook}
@@ -187,9 +191,10 @@ export default function App() {
         setSortAscending={setSortAscending}
       />
       <br />
-      <input
+      <TextField
+        label="Search"
         type="text"
-        placeholder="Search"
+        variant="filled"
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
