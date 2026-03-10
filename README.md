@@ -174,6 +174,23 @@ Visit `http://localhost:5173` in your browser.
 - Verify localStorage seed works on fresh browser
 - Build Presentation and write demo script / talking points
 
+### Sprint 4: Bug Fixes & UX Improvements
+
+#### Bug Fixes
+
+- Fixed `DialogTitle` incorrectly nested inside `DialogContent` in BookFormModal (MUI structural issue)
+- Fixed image validation error `Alert` only rendering for lent books — now visible in all form modes (add and edit)
+- Fixed Skeleton loading state getting stuck indefinitely on book cards without a cover image
+- Added `onClose` handler to delete dialog and lend dialog — Escape key and click-outside now dismiss both
+- Fixed invalid CSS `marginTop: "0 px"` (space between value and unit caused property to be ignored)
+- Renamed `BookFormModal .jsx` → `BookFormModal.jsx` (trailing space in filename caused cross-platform issues)
+
+#### UX Improvements
+
+- Image URL validation now shows a grey disabled button with `CircularProgress` spinner while checking, preventing double-submission
+- `console.error` in API error handler now only logs in development mode (`import.meta.env.DEV`)
+- Progressive cover image loading: skeleton shows for up to 8 seconds while image loads, then falls back to title placeholder — image swaps in if/when it eventually loads
+
 ## Data Persistence
 
 - **First load:** Seeds localStorage from `seedData.json` (existing library data from v1)
@@ -245,4 +262,4 @@ This project was built as part of the SheCodes bootcamp React module. The origin
 
 **Built by:** Gavi Lazan  
 **Course:** SheCodes Fullstack Bootcamp
-**Last Updated:** March 9, 2026
+**Last Updated:** March 11, 2026

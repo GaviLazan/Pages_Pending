@@ -49,7 +49,9 @@ export async function fetchBookByISBN(isbn) {
       isbn: isbn,
     };
   } catch (error) {
-    console.error("Error fetching book:", error);
+    if (import.meta.env.DEV) {
+      console.error("Error fetching book:", error);
+    }
     throw error;
   }
 }

@@ -20,7 +20,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import DeleteIcon from "@mui/icons-material/Delete"
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditNoteOutlinedIcon from "@mui/icons-material/EditNoteOutlined";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
@@ -46,7 +46,8 @@ export default function BookCard({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [lentDate, setLentDate] = useState(dayjs().toISOString().split("T")[0]);
   const [statusAnchor, setStatusAnchor] = useState(null);
-  const [imageLoading, setImageLoading] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(!!book.coverUrl);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const inputRef = useRef(null);
 
@@ -89,6 +90,13 @@ export default function BookCard({
     setShowLendForm(false);
   };
 
+  // skeleton timeout — show placeholder after 8s if image hasn't loaded
+  useEffect(() => {
+    if (!book.coverUrl) return;
+    const timer = setTimeout(() => setShowSkeleton(false), 8000);
+    return () => clearTimeout(timer);
+  }, [book.coverUrl]);
+
   // input focus
   useEffect(() => {
     if (showLendForm && inputRef.current) {
@@ -119,8 +127,8 @@ export default function BookCard({
         }}
       />
 
-      {/* delte dialog */}
-      <Dialog open={deleteDialogOpen}>
+      {/* delete dialog */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogContent>
           <DialogContentText>
             Are you sure you want to delete this book?
@@ -140,24 +148,28 @@ export default function BookCard({
       </Dialog>
 
       {/* book cover */}
-      {imageLoading && (
+      {showSkeleton && (
         <Skeleton variant="rectangular" width={180} height={270} />
       )}
-      {book.coverUrl && !imageError ? (
+      {book.coverUrl && !imageError && (
         <CardMedia
           component="img"
           sx={{ height: 270, objectFit: "fill" }}
           image={book.coverUrl}
           alt={book.title}
-          onLoad={() => setImageLoading(false)}
-          onError={() => {
-            setImageError(true);
-            setImageLoading(false);
+          onLoad={() => {
+            setShowSkeleton(false);
+            setImageLoaded(true);
           }}
-          style={{ display: imageLoading ? "none" : "block" }}
+          onError={() => {
+            setShowSkeleton(false);
+            setImageError(true);
+          }}
+          style={{ display: imageLoaded ? "block" : "none" }}
         />
-      ) : (
-        !imageLoading && <div className="cover-placeholder">{book.title}</div>
+      )}
+      {(!book.coverUrl || imageError || (!showSkeleton && !imageLoaded)) && (
+        <div className="cover-placeholder">{book.title}</div>
       )}
 
       {/* book info */}
@@ -242,7 +254,7 @@ export default function BookCard({
             flexDirection: "row",
             justifyContent: "space-around",
             gap: "8px",
-            marginTop: "0 px",
+            marginTop: "0",
           }}
         >
           {/* edit */}
@@ -296,7 +308,16 @@ export default function BookCard({
 
           {/* lend form */}
           {!book.isLent && (
-            <Dialog open={showLendForm} slots={{ transition: Transition }}>
+            <Dialog
+              open={showLendForm}
+              slots={{ transition: Transition }}
+              onClose={() => {
+                setShowLendForm(false);
+                setLentTo("");
+                setLendError("");
+                setLentDate(dayjs().toISOString().split("T")[0]);
+              }}
+            >
               <DialogTitle>Lend a book</DialogTitle>
               <DialogContent>
                 <form id="lend-form" onSubmit={handleSubmitLend}>

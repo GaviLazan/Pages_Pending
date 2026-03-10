@@ -3,7 +3,7 @@ import { getBooks, saveBooks } from "./utils/storage";
 import seedLibrary from "./utils/seedLibrary";
 import BookGrid from "./components/BookGrid";
 import AddBookForm from "./components/AddBookForm";
-import BookFormModal from "./components/BookFormModal ";
+import BookFormModal from "./components/BookFormModal";
 import FilterBar from "./components/FilterBar";
 import SortBar from "./components/SortBar";
 import LentStatusPanel from "./components/LentStatusPanel";

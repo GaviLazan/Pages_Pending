@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, forwardRef } from "react";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import Dialog from "@mui/material/Dialog";
@@ -24,6 +25,7 @@ export default function BookFormModal({
   const [author, setAuthor] = useState(bookFormState?.author || "");
   const [coverUrl, setCoverUrl] = useState(bookFormState?.coverUrl || "");
   const [errorMessage, setErrorMessage] = useState("");
+  const [validatingImage, setValidatingImage] = useState(false);
   const [lentTo, setLentTo] = useState(bookFormState?.lentTo || "");
   const [lentDate, setLentDate] = useState(bookFormState?.lentDate || "");
   const inputRef = useRef(null);
@@ -42,6 +44,7 @@ export default function BookFormModal({
     } else if (coverUrl) {
       const img = new Image();
       img.onload = () => {
+        setValidatingImage(false);
         if (bookFormState === "add") {
           onAddBook({ title, author, coverUrl, isbn: "" });
           setTitle("");
@@ -55,9 +58,13 @@ export default function BookFormModal({
         }
       };
       img.onerror = () => {
+        setValidatingImage(false);
         setErrorMessage("Please paste valid image link.");
       };
-      img.src = coverUrl;
+      setValidatingImage(true);
+      setTimeout(() => {
+        img.src = coverUrl;
+      }, 0);
       return;
     }
     if (bookFormState === "add") {
@@ -87,10 +94,10 @@ export default function BookFormModal({
       transitionDuration={{ enter: 150, exit: 300 }}
       onClose={() => setBookFormState(null)}
     >
+      <DialogTitle>
+        {bookFormState !== "add" ? "Edit Book Info" : "Add Book"}
+      </DialogTitle>
       <DialogContent>
-        <DialogTitle>
-          {bookFormState !== "add" ? "Edit Book Info" : "Add Book"}
-        </DialogTitle>
         <form
           id="book-form"
           onSubmit={handleSubmit}
@@ -117,6 +124,7 @@ export default function BookFormModal({
             value={coverUrl}
             onChange={(e) => setCoverUrl(e.target.value)}
           />
+          {errorMessage && <Alert severity="warning">{errorMessage}</Alert>}
           {bookFormState?.isLent === true && (
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <TextField
@@ -131,20 +139,26 @@ export default function BookFormModal({
                   setLentDate(newValue.format("YYYY-MM-DD"))
                 }
               />
-              {errorMessage && <Alert severity="warning">{errorMessage}</Alert>}
             </div>
           )}
         </form>
       </DialogContent>
       <DialogActions>
-        <Button
-          form="book-form"
-          variant="contained"
-          color="success"
-          type="submit"
-        >
-          {bookFormState !== "add" ? "Save Changes" : "Add Book"}
-        </Button>
+        {validatingImage ? (
+          <Button variant="contained" disabled>
+            <CircularProgress size={14} color="inherit" sx={{ mr: 1 }} />
+            {bookFormState !== "add" ? "Saving..." : "Adding Book"}
+          </Button>
+        ) : (
+          <Button
+            form="book-form"
+            variant="contained"
+            color="success"
+            type="submit"
+          >
+            {bookFormState !== "add" ? "Save Changes" : "Add Book"}
+          </Button>
+        )}
         <Button variant="contained" onClick={() => setBookFormState(null)}>
           Cancel
         </Button>
