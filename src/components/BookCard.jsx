@@ -220,7 +220,7 @@ export default function BookCard({
             sx={{
               color: statusColors[book.status] || statusColors[null],
               borderColor: statusColors[book.status] || statusColors[null],
-              width: "100px",
+              width: "135px",
               display: "flex",
             }}
           >

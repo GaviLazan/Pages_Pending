@@ -45,7 +45,7 @@ const theme = createTheme({
       fontWeight: 500,
     },
     button: {
-      fontWeight: 500,
+      fontWeight: 600,
     },
     body1: {
       fontWeight: 400,

@@ -21,7 +21,7 @@ import { Divider } from "@mui/material";
 export default function App() {
   const [books, setBooks] = useState([]);
   const [activeFilter, setActiveFilter] = useState("all");
-  const [lentFilter, setLentFilter] = useState(false);
+  const [lentFilter, setLentFilter] = useState(null);
   const [activeSort, setActiveSort] = useState("title");
   const [sortAscending, setSortAscending] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -127,10 +127,12 @@ export default function App() {
         ? books.filter((book) => book.status === null)
         : books.filter((book) => book.status === activeFilter);
 
-  const hideLentBooks =
-    lentFilter === false
-      ? filteredBooks
-      : filteredBooks.filter((book) => book.isLent !== lentFilter);
+const filterLentBooks =
+  lentFilter === null
+    ? filteredBooks
+    : lentFilter === 'show'
+    ? filteredBooks.filter((book) => book.isLent)
+    : filteredBooks.filter((book) => !book.isLent);
 
   function handleSortChange(newSort) {
     setActiveSort(newSort);
@@ -139,8 +141,8 @@ export default function App() {
 
   const searchedBooks =
     searchTerm === ""
-      ? hideLentBooks
-      : hideLentBooks.filter(
+      ? filterLentBooks
+      : filterLentBooks.filter(
           (book) =>
             book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             book.author.toLowerCase().includes(searchTerm.toLowerCase()),
