@@ -201,15 +201,16 @@ export default function BookCard({
         )}
 
         {/* ratings */}
-        <div className="rating-box"><Rating
-          sx={{
-            fontSize: "1.1rem",
-            paddingTop: "5px",
-          }}
-          value={book.rating}
-          onChange={(e, newValue) => onRatingChange(book.id, newValue)}
-        />
-</div>
+        <div className="rating-box">
+          <Rating
+            sx={{
+              fontSize: "1.1rem",
+              paddingTop: "5px",
+            }}
+            value={book.rating}
+            onChange={(e, newValue) => onRatingChange(book.id, newValue)}
+          />
+        </div>
         {/* status menu */}
         <div className="status-button">
           <Button

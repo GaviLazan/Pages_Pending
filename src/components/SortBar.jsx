@@ -13,7 +13,7 @@ export default function SortBar({
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-      <Typography variant="subtitle2">Sort by:</Typography>
+        <Typography variant="subtitle2">Sort by:</Typography>
         <ButtonGroup>
           <Button
             variant={activeSort === "title" ? "contained" : "outlined"}
@@ -49,7 +49,7 @@ export default function SortBar({
           variant="outlined"
           color="primary"
           onClick={() => setSortAscending(!sortAscending)}
-          sx={{ minWidth: "36px", padding: "4px", alignSelf: 'stretch' }}
+          sx={{ minWidth: "36px", padding: "4px", alignSelf: "stretch" }}
         >
           {sortAscending ? (
             <ArrowDropUpIcon sx={{ fontSize: "26px" }} />

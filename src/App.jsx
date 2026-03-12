@@ -127,12 +127,12 @@ export default function App() {
         ? books.filter((book) => book.status === null)
         : books.filter((book) => book.status === activeFilter);
 
-const filterLentBooks =
-  lentFilter === null
-    ? filteredBooks
-    : lentFilter === 'show'
-    ? filteredBooks.filter((book) => book.isLent)
-    : filteredBooks.filter((book) => !book.isLent);
+  const filterLentBooks =
+    lentFilter === null
+      ? filteredBooks
+      : lentFilter === "show"
+        ? filteredBooks.filter((book) => book.isLent)
+        : filteredBooks.filter((book) => !book.isLent);
 
   function handleSortChange(newSort) {
     setActiveSort(newSort);
