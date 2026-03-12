@@ -45,7 +45,7 @@ export default function App() {
   function handleAddBook(bookData) {
     const newBook = {
       ...bookData,
-      id: Date.now(),
+      id: crypto.randomUUID(),
       status: null,
       isLent: false,
       rating: 0,
