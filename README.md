@@ -14,9 +14,11 @@ Personal library management app built with React, allowing you to track your boo
 
 ### Core Features
 
-- Add books via ISBN (Open Library API) with loading indicator
+- Add books via ISBN, title, or author (Open Library API) with loading indicator
 - Add books manually (title + author + cover URL) via MUI Dialog modal
+- Search for books by title or author (Open Library search API) with multi-select results modal and pagination
 - Delete books with MUI Dialog confirmation
+- Undo single-book delete: 5-second window via snackbar action button
 - Track reading status: Untagged, To Be Read, Currently Reading, Read, Did Not Finish
 - Lend books to friends with tracking (borrower name, lent date with date picker, overdue alerts)
 - Return books
@@ -24,14 +26,17 @@ Personal library management app built with React, allowing you to track your boo
 - Real-time search by title or author
 - Filter by status and toggle lent book visibility
 - Sort by title, author name, rating, or date added (ascending/descending)
+- Grid and list view modes (list view: compact rows with thumbnail, status, rating, and inline actions)
+- Bulk selection mode: select multiple books to lend, return, change status, or delete in one action
 - Library statistics dashboard
-- Lent out stats panel with human-readable duration
+- Lent out stats panel with human-readable duration (e.g. "1 year, 3 months, 2 weeks")
 - Edit book information (title, author, cover URL, lent info) via MUI Dialog
 - Empty state messages for filtered/search results
-- Snackbar notifications for add, edit, and delete actions
+- Snackbar notifications for add, edit, and delete; delete includes a 5-second undo action
 - Skeleton loading states for initial grid and individual cover images
 - Overdue indicator: growing red top border (scales from 2px at 4 weeks to 10px at 6 months)
 - Tooltips on truncated titles, author names, and lent info
+- Dark mode toggle
 
 ### Data Model
 
@@ -49,14 +54,17 @@ Each book contains:
 ```
 src/
 ├── api/
-│   └── openLibrary.js          # Open Library API integration (ISBN lookup, author fallback)
+│   └── openLibrary.js          # Open Library API: ISBN lookup + title/author search
 ├── components/
-│   ├── AddBookForm.jsx          # ISBN input form
-│   ├── BookFormModal.jsx        # Combined add/edit modal form (replaces ManualAddForm)
-│   ├── BookCard.jsx             # Individual book card
+│   ├── AddBookForm.jsx          # ISBN/title/author search form with results modal
+│   ├── BookFormModal.jsx        # Combined add/edit modal form
+│   ├── BookCard.jsx             # Individual book card (grid view)
 │   ├── BookGrid.jsx             # Grid layout for book cards
+│   ├── BookList.jsx             # Compact list view (rows with thumbnail + inline actions)
+│   ├── BulkActionBar.jsx        # Floating action bar for bulk operations on selected books
+│   ├── ClearLibraryButton.jsx   # Resets localStorage to seed data
 │   ├── FilterBar.jsx            # Status filter buttons + hide lent toggle
-│   ├── SortBar.jsx              # Sort type dropdown + asc/desc toggle
+│   ├── SortBar.jsx              # Sort type dropdown + asc/desc toggle + grid/list view toggle
 │   ├── LentStatusPanel.jsx      # Panel listing all lent books with duration
 │   └── LibraryStatsBar.jsx      # Stats bar (total, read, reading, lent)
 ├── data/
@@ -64,9 +72,11 @@ src/
 ├── utils/
 │   ├── storage.js               # localStorage utilities (getBooks, saveBooks, hasSeed)
 │   ├── seedLibrary.js           # Seed function (first-load migration)
-│   ├── lendLengthCalc.js        # Lent duration as 0-100% (used for red glow intensity)
-│   └── lendLengthAsString.js    # Lent duration as human-readable string (e.g. "3 weeks")
+│   ├── statusColors.js          # Status color maps for light and dark modes
+│   ├── lendLengthCalc.js        # Lent duration as 0-100% (used for overdue bar intensity)
+│   └── lendLengthAsString.js    # Lent duration as human-readable string (e.g. "3 months, 2 weeks")
 ├── App.jsx                      # Main app component — all state and handlers
+├── Root.jsx                     # Theme provider (CssVarsProvider, dark mode, LocalizationProvider)
 ├── main.jsx                     # React entry point
 └── index.css                    # Global styles
 ```
@@ -89,14 +99,15 @@ Visit `http://localhost:5173` in your browser.
 
 ## Color Palette
 
-| Role                   | Color     |
-| ---------------------- | --------- |
-| Primary                | `#507993` |
-| Secondary              | `#D4B99E` |
-| Success (save/confirm) | `#7AAC6C` |
-| Info (return book)     | `#F2CA50` |
-| Warning                | `#F29325` |
-| Background             | `#FFF5F3` |
+| Role                   | Light mode  | Dark mode   |
+| ---------------------- | ----------- | ----------- |
+| Primary                | `#507993`   | `#6BAFC9`   |
+| Secondary              | `#D4B99E`   | `#C4A882`   |
+| Success (save/confirm) | `#7AAC6C`   | `#7ebd70`   |
+| Info (return book)     | `#F2CA50`   | `#FFD966`   |
+| Warning                | `#F29325`   | `#FFB347`   |
+| Error                  | `#c62828`   | `#FF6B6B`   |
+| Background             | `#fffbf5`   | `#1c1c28`   |
 
 ## Development Timeline
 
@@ -202,9 +213,11 @@ Visit `http://localhost:5173` in your browser.
 
 ### Open Library API
 
-- **Primary use:** Fetch book metadata by ISBN
-- **Author fallback:** Checks both edition and work objects for author data
-- **Cover images:** Uses `http://covers.openlibrary.org/b/id/{coverId}-M.jpg` (note: http, not https)
+- **ISBN lookup:** Fetches title, author, and cover from `/isbn/{isbn}.json` with author fallback via work/edition chain
+- **Title search:** `fetchBooks("title", query)` → `/search.json?title=...`
+- **Author search:** `fetchBooks("author", query)` → `/search.json?author=...`
+- Both search modes return paginated results (10 per page) with "Load more" support
+- **Cover images:** `http://covers.openlibrary.org/b/id/{coverId}-M.jpg` (note: http, not https)
 - **Attribution:** Open Library attribution displayed in footer
 
 ### BookCover API — Deferred to Post-Presentation
@@ -247,19 +260,24 @@ This project was built as part of the SheCodes bootcamp React module. The origin
 - MUI component library integration
 - Project planning and sprint-based development
 
+### Sprint 5: Post-Presentation Enhancements
+
+- **Dark mode:** Full light/dark theme via MUI `CssVarsProvider` + `extendTheme`; toggle in top bar; `Root.jsx` now wraps `App` with theme and locale providers; `statusColors.js` centralises status colour maps for both modes
+- **List view:** New `BookList.jsx` component; compact row layout with thumbnail, inline status/rating/actions; toggle between grid and list view in `SortBar`
+- **Bulk selection mode:** Click any book cover/thumbnail to enter selection mode; `BulkActionBar` floats above footer with lend, return, status, and delete actions for all selected books
+- **Book search by title/author:** `AddBookForm` now has ISBN / Title / Author toggle; title and author modes query Open Library `/search.json`; results shown in a multi-select modal with cover, author, year, and "Load more" pagination
+- **Undo delete:** Single-book delete shows a 5-second snackbar with an UNDO button; book is re-inserted at its original position if undone
+- **Lent duration fix:** `lendLengthAsString` rewritten with remainder-based arithmetic; no longer outputs "2 years, 0 months"; shows weeks for sub-year durations (e.g. "3 months, 2 weeks")
+
 ## Post-Presentation Enhancements
 
 1. **Add backend (Node/Express)** to enable BookCover API via proxy
-2. **Enable title search** (Open Library search API) for books without ISBNs
-3. **Dark mode toggle**
-4. **Export/import library data**
-5. **Drag and drop manual sorting**
-6. **Lent duration refinement** (e.g. "1 year 3 months 2 weeks")
-7. **Undo delete**
-8. **Image caching** (requires backend)
+2. **Export/import library data**
+3. **Drag and drop manual sorting**
+4. **Image caching** (requires backend)
 
 ---
 
 **Built by:** Gavi Lazan  
 **Course:** SheCodes Fullstack Bootcamp
-**Last Updated:** March 11, 2026
+**Last Updated:** March 15, 2026

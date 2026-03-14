@@ -8,6 +8,10 @@ export default function BookGrid({
   onReturnBook,
   onRatingChange,
   setBookFormState,
+  darkMode,
+  selectedBooks,
+  onToggleSelect,
+  isSelectionMode,
 }) {
   return (
     <div className="book-grid">
@@ -21,6 +25,10 @@ export default function BookGrid({
           onReturnBook={onReturnBook}
           onRatingChange={onRatingChange}
           setBookFormState={setBookFormState}
+          darkMode={darkMode}
+          isSelected={selectedBooks.has(book.id)}
+          onToggleSelect={onToggleSelect}
+          isSelectionMode={isSelectionMode}
         />
       ))}
     </div>

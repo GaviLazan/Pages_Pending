@@ -3,13 +3,29 @@ import Switch from "@mui/material/Switch";
 import { Tooltip } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import { lightStatusColors, darkStatusColors } from "../utils/statusColors";
 
 export default function FilterBar({
   activeFilter,
   handleFilterChange,
   lentFilter,
   setLentFilter,
+  darkMode,
 }) {
+  const statusColors = darkMode ? darkStatusColors : lightStatusColors;
+
+  const lightActiveBg = {
+    tbr: "#fff9e6",
+    reading: "#e6f2ff",
+    read: "#e8f5e9",
+    dnf: "#ffebee",
+  };
+
+  const getActiveBg = (status) => {
+    if (darkMode) return `${statusColors[status]}33`; // 20% opacity hex
+    return lightActiveBg[status];
+  };
+
   return (
     <>
       <div style={{ display: "flex", overflowX: "auto", gap: "8px" }}>
@@ -26,7 +42,18 @@ export default function FilterBar({
           <Button
             variant={activeFilter === "untagged" ? "contained" : "outlined"}
             color="secondary"
-            sx={activeFilter === "tbr" ? {} : { color: "#505050" }}
+            sx={
+              activeFilter === "untagged"
+                ? darkMode
+                  ? {
+                      backgroundColor: "rgba(196, 168, 130, 0.2)",
+                      color: "#C4A882",
+                    }
+                  : {}
+                : darkMode
+                  ? {}
+                  : { color: "#505050" }
+            }
             onClick={() => handleFilterChange("untagged")}
           >
             Untagged
@@ -37,8 +64,11 @@ export default function FilterBar({
             variant={activeFilter === "tbr" ? "contained" : "outlined"}
             sx={
               activeFilter === "tbr"
-                ? { backgroundColor: "#fff9e6", color: "#8b6914" }
-                : { color: "#8b6914" }
+                ? {
+                    backgroundColor: getActiveBg("tbr"),
+                    color: statusColors.tbr,
+                  }
+                : { color: statusColors.tbr }
             }
             onClick={() => handleFilterChange("tbr")}
           >
@@ -50,8 +80,11 @@ export default function FilterBar({
             variant={activeFilter === "reading" ? "contained" : "outlined"}
             sx={
               activeFilter === "reading"
-                ? { backgroundColor: "#e6f2ff", color: "#1e5a99" }
-                : { color: "#1e5a99" }
+                ? {
+                    backgroundColor: getActiveBg("reading"),
+                    color: statusColors.reading,
+                  }
+                : { color: statusColors.reading }
             }
             onClick={() => handleFilterChange("reading")}
           >
@@ -63,8 +96,11 @@ export default function FilterBar({
             variant={activeFilter === "read" ? "contained" : "outlined"}
             sx={
               activeFilter === "read"
-                ? { backgroundColor: "#e8f5e9", color: "#2e7d32" }
-                : { color: "#2e7d32" }
+                ? {
+                    backgroundColor: getActiveBg("read"),
+                    color: statusColors.read,
+                  }
+                : { color: statusColors.read }
             }
             onClick={() => handleFilterChange("read")}
           >
@@ -76,8 +112,11 @@ export default function FilterBar({
             variant={activeFilter === "dnf" ? "contained" : "outlined"}
             sx={
               activeFilter === "dnf"
-                ? { backgroundColor: "#ffebee", color: "#c62828" }
-                : { color: "#c62828" }
+                ? {
+                    backgroundColor: getActiveBg("dnf"),
+                    color: statusColors.dnf,
+                  }
+                : { color: statusColors.dnf }
             }
             onClick={() => handleFilterChange("dnf")}
           >

@@ -14,8 +14,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  padding: 20px;
-  padding-bottom: 70px;
+  padding: 0 20px 70px;
 }
 
 /* ============================================================
@@ -29,14 +28,12 @@ body {
 .top-bar {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mui-palette-divider);
+  padding: 20px 20px 8px;
   margin-bottom: 16px;
-  background-color: #fffaf9;
+  background-color: var(--mui-palette-background-paper);
   margin-left: -20px;
   margin-right: -20px;
-  padding-left: 20px;
-  padding-right: 20px;
 }
 
 .add-zone {
@@ -84,7 +81,7 @@ body {
 .side-panel {
   width: 275px;
   flex-shrink: 0;
-  background: white;
+  background-color: var(--mui-palette-background-paper);
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
@@ -98,7 +95,7 @@ body {
 
 hr {
   border: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--mui-palette-divider);
   margin: 12px 8px;
 }
 
@@ -118,7 +115,7 @@ hr {
 .stats-bar h3 {
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--mui-palette-text-primary);
   margin-bottom: 12px;
 }
 
@@ -138,6 +135,7 @@ hr {
   flex-direction: column;
   overflow: visible;
   transition: box-shadow 0.2s ease;
+  user-select: none;
 }
 
 .book-card:hover {
@@ -176,7 +174,7 @@ hr {
 
 .book-card p {
   font-size: 12px;
-  color: #666;
+  color: var(--mui-palette-text-secondary);
   margin-top: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -197,28 +195,6 @@ hr {
   justify-content: center;
 }
 
-/* --- Status variants --- */
-
-.book-card[data-status="tbr"] {
-  background-color: hsl(46, 100%, 95%);
-  color: #6b5104;
-}
-
-.book-card[data-status="reading"] {
-  background-color: hsl(218, 100%, 93%);
-  color: #084298;
-}
-
-.book-card[data-status="read"] {
-  background-color: hsl(153, 31%, 90%);
-  color: #0f5132;
-}
-
-.book-card[data-status="dnf"] {
-  background-color: #f8d7da;
-  color: #842029;
-}
-
 /* --- Lent state --- */
 
 .book-card.lent {
@@ -231,7 +207,7 @@ hr {
 }
 
 .lent h3 {
-  color: #000000;
+  color: var(--mui-palette-text-primary);
   opacity: 0.5;
 }
 
@@ -248,10 +224,12 @@ footer {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #f0f0f0;
+  z-index: 100;
+  /* background-color: #f0f0f0; */
+  background-color: var(--mui-palette-background-paper);
   padding: 10px;
   text-align: center;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--mui-palette-divider);
   font-size: 12px;
 }
 

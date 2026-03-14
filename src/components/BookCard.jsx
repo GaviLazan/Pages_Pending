@@ -1,5 +1,8 @@
-import { useState, useRef, useEffect, forwardRef } from "react";
+import { useState, useRef, useEffect, forwardRef, memo } from "react";
+import Checkbox from "@mui/material/Checkbox";
 import lendLengthCalc from "../utils/lendLengthCalc.js";
+import { lightStatusColors, darkStatusColors } from "../utils/statusColors";
+
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
@@ -17,7 +20,6 @@ import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import Slide from "@mui/material/Slide";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
 import Tooltip from "@mui/material/Tooltip";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,12 +27,13 @@ import EditNoteOutlinedIcon from "@mui/icons-material/EditNoteOutlined";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import Skeleton from "@mui/material/Skeleton";
+import dayjs from "dayjs";
 
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function BookCard({
+const BookCard = memo(function BookCard({
   book,
   onDelete,
   onStatusChange,
@@ -38,6 +41,10 @@ export default function BookCard({
   onReturnBook,
   onRatingChange,
   setBookFormState,
+  darkMode,
+  isSelected,
+  onToggleSelect,
+  isSelectionMode,
 }) {
   const [imageError, setImageError] = useState(false);
   const [showLendForm, setShowLendForm] = useState(false);
@@ -51,6 +58,28 @@ export default function BookCard({
 
   const inputRef = useRef(null);
 
+  const statusColors = darkMode ? darkStatusColors : lightStatusColors;
+
+  const lightStatusBg = {
+    tbr: "hsl(46, 100%, 95%)",
+    reading: "hsl(218, 100%, 93%)",
+    read: "hsl(153, 31%, 90%)",
+    dnf: "#f8d7da",
+  };
+
+  const darkStatusBg = {
+    tbr: "rgba(255, 209, 102, 0.17)",
+    reading: "rgba(96, 171, 255, 0.17)",
+    read: "rgba(93, 214, 104, 0.17)",
+    dnf: "rgba(255, 107, 107, 0.17)",
+  };
+
+  const statusBg = book.isLent
+    ? undefined
+    : darkMode
+      ? darkStatusBg[book.status]
+      : lightStatusBg[book.status];
+
   // overdue indicator
   const lentPercent = book.isLent ? lendLengthCalc(book.lentDate) / 100 : 0;
   const overdueBarHeight =
@@ -63,13 +92,13 @@ export default function BookCard({
     onStatusChange(book.id, newStatus);
     handleStatusMenuClose();
   };
-  const statusColors = {
-    null: "#888888",
-    tbr: "#8b6914",
-    reading: "#1e5a99",
-    read: "#2e7d32",
-    dnf: "#c62828",
-  };
+  // const statusColors = {
+  //   null: "#888888",
+  //   tbr: "#8b6914",
+  //   reading: "#1e5a99",
+  //   read: "#2e7d32",
+  //   dnf: "#c62828",
+  // };
 
   const statusLabels = {
     null: "Set Status",
@@ -111,6 +140,8 @@ export default function BookCard({
       sx={{
         overflow: "visible",
         borderRadius: book.isLent && lentPercent > 0 ? "0 0 8px 8px" : "8px",
+        ...(statusBg && { backgroundColor: statusBg }),
+        userSelect: "none",
       }}
     >
       {/* overdue indicator */}
@@ -126,6 +157,23 @@ export default function BookCard({
           zIndex: -1,
         }}
       />
+
+      {/* selection frame */}
+      {isSelected && (
+        <div
+          style={{
+            position: "absolute",
+            top: -(overdueBarHeight + 2),
+            left: -2,
+            right: -2,
+            bottom: -2,
+            border: "2px solid var(--mui-palette-primary-main)",
+            borderRadius: lentPercent > 0 ? "6px 6px 10px 10px" : "10px",
+            pointerEvents: "none",
+            zIndex: 5,
+          }}
+        />
+      )}
 
       {/* delete dialog */}
       <Dialog
@@ -151,29 +199,88 @@ export default function BookCard({
       </Dialog>
 
       {/* book cover */}
-      {showSkeleton && (
-        <Skeleton variant="rectangular" width={180} height={270} />
-      )}
-      {book.coverUrl && !imageError && (
-        <CardMedia
-          component="img"
-          sx={{ height: 270, objectFit: "fill" }}
-          image={book.coverUrl}
-          alt={book.title}
-          onLoad={() => {
-            setShowSkeleton(false);
-            setImageLoaded(true);
-          }}
-          onError={() => {
-            setShowSkeleton(false);
-            setImageError(true);
-          }}
-          style={{ display: imageLoaded ? "block" : "none" }}
-        />
-      )}
-      {(!book.coverUrl || imageError || (!showSkeleton && !imageLoaded)) && (
-        <div className="cover-placeholder">{book.title}</div>
-      )}
+      <div
+        onClick={() => onToggleSelect(book.id)}
+        style={{
+          position: "relative",
+          height: 270,
+          flexShrink: 0,
+          borderRadius:
+            book.isLent && lentPercent > 0 ? "0 0 0 0" : "8px 8px 0 0",
+          overflow: "hidden",
+          cursor: "pointer",
+        }}
+      >
+        {isSelectionMode && (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSelect(book.id);
+            }}
+            style={{ position: "absolute", top: 6, left: 6, zIndex: 10 }}
+          >
+            <Checkbox
+              checked={!!isSelected}
+              size="small"
+              sx={{
+                color: "white",
+                backgroundColor: "rgba(0,0,0,0.35)",
+                borderRadius: "4px",
+                padding: "2px",
+                "&.Mui-checked": {
+                  color: "primary.main",
+                  backgroundColor: "rgba(0,0,0,0.35)",
+                },
+              }}
+            />
+          </div>
+        )}
+        {isSelected && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundColor: "rgba(80, 121, 147, 0.18)",
+              borderRadius: "4px 4px 0 0",
+              pointerEvents: "none",
+              zIndex: 1,
+            }}
+          />
+        )}
+        {showSkeleton && (
+          <Skeleton
+            variant="rectangular"
+            width={180}
+            height={270}
+            style={{ position: "absolute", top: 0, left: 0 }}
+          />
+        )}
+        {book.coverUrl && !imageError && (
+          <CardMedia
+            component="img"
+            sx={{ height: 270, objectFit: "fill" }}
+            image={book.coverUrl}
+            alt={book.title}
+            onLoad={() => {
+              setShowSkeleton(false);
+              setImageLoaded(true);
+            }}
+            onError={() => {
+              setShowSkeleton(false);
+              setImageError(true);
+            }}
+            style={{ visibility: imageLoaded ? "visible" : "hidden" }}
+          />
+        )}
+        {(!book.coverUrl || imageError || (!showSkeleton && !imageLoaded)) && (
+          <div
+            className="cover-placeholder"
+            style={{ position: "absolute", top: 0, left: 0 }}
+          >
+            {book.title}
+          </div>
+        )}
+      </div>
 
       {/* book info */}
       <CardContent
@@ -201,7 +308,7 @@ export default function BookCard({
         )}
 
         {/* ratings */}
-        <div className="rating-box">
+        <div className="rating-box" onClick={(e) => e.stopPropagation()}>
           <Rating
             sx={{
               fontSize: "1.1rem",
@@ -212,14 +319,17 @@ export default function BookCard({
           />
         </div>
         {/* status menu */}
-        <div className="status-button">
+        <div className="status-button" onClick={(e) => e.stopPropagation()}>
           <Button
             variant="text"
             size="small"
             onClick={handleStatusMenuOpen}
             endIcon={<ArrowDropDownIcon />}
             sx={{
-              color: statusColors[book.status] || statusColors[null],
+              color:
+                book.isLent && darkMode && !book.status
+                  ? "rgba(255, 255, 255, 0.65)"
+                  : statusColors[book.status] || statusColors[null],
               borderColor: statusColors[book.status] || statusColors[null],
               width: "135px",
               display: "flex",
@@ -250,6 +360,7 @@ export default function BookCard({
 
         {/* icon buttons */}
         <div
+          onClick={(e) => e.stopPropagation()}
           style={{
             display: "flex",
             flexDirection: "row",
@@ -390,4 +501,6 @@ export default function BookCard({
       </CardContent>
     </Card>
   );
-}
+});
+
+export default BookCard;

@@ -1,14 +1,19 @@
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import GridViewIcon from "@mui/icons-material/GridView";
+import ViewListIcon from "@mui/icons-material/ViewList";
 
 export default function SortBar({
   activeSort,
   handleSortChange,
   sortAscending,
   setSortAscending,
+  viewMode,
+  setViewMode,
 }) {
   return (
     <>
@@ -44,7 +49,6 @@ export default function SortBar({
             Date Added
           </Button>
         </ButtonGroup>
-        {/* <Typography variant="subtitle2">Sort descending?</Typography> */}
         <Button
           variant="outlined"
           color="primary"
@@ -57,6 +61,25 @@ export default function SortBar({
             <ArrowDropDownIcon sx={{ fontSize: "26px" }} />
           )}
         </Button>
+        <Divider orientation="vertical" flexItem />
+        <ButtonGroup>
+          <Button
+            variant={viewMode === "grid" ? "contained" : "outlined"}
+            color="primary"
+            onClick={() => setViewMode("grid")}
+            sx={{ minWidth: "36px", padding: "4px" }}
+          >
+            <GridViewIcon fontSize="small" />
+          </Button>
+          <Button
+            variant={viewMode === "list" ? "contained" : "outlined"}
+            color="primary"
+            onClick={() => setViewMode("list")}
+            sx={{ minWidth: "36px", padding: "4px" }}
+          >
+            <ViewListIcon fontSize="small" />
+          </Button>
+        </ButtonGroup>
       </div>
     </>
   );

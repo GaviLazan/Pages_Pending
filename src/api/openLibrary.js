@@ -1,5 +1,32 @@
 import axios from "axios";
 
+export async function fetchBooks(searchType, query, offset = 0, limit = 10) {
+  try {
+    const response = await axios.get("https://openlibrary.org/search.json", {
+      params: { [searchType]: query, limit, offset },
+    });
+    const docs = response.data.docs.map((doc) => ({
+      title: doc.title,
+      author: doc.author_name?.[0] ?? "Unknown Author",
+      coverUrl: doc.cover_i
+        ? `http://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
+        : "",
+      isbn: doc.isbn?.[0] ?? "",
+      year: doc.first_publish_year ?? null,
+    }));
+    return { docs, numFound: response.data.numFound };
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error(`Error searching books by ${searchType}:`, error);
+    }
+    throw error;
+  }
+}
+
+// Kept for backwards compatibility
+export const fetchBooksByTitle = (title, offset, limit) =>
+  fetchBooks("title", title, offset, limit);
+
 export async function fetchBookByISBN(isbn) {
   // Step 1: Fetch the book data from Open Library
   try {
